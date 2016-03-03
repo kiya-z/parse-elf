@@ -1,6 +1,6 @@
 #define EI_NIDENT 16
 
-typedef struct ElfHeader{
+typedef struct ELFHEADER {
     unsigned char e_ident[EI_NIDENT];
     unsigned short e_type;
     unsigned short e_machine;
@@ -15,4 +15,6 @@ typedef struct ElfHeader{
     unsigned short e_shentsize;
     unsigned short e_shnum;
     unsigned short e_shstrndx;
-} ElfHeader;
+} ELFHEADER;
+
+ELFHEADER header;
