@@ -7,7 +7,7 @@
 
 void read_header(FILE* fp) {
   int i = 0;
-  printf("\n");
+  printf("\n文件头:\n");
 
   /******ident******/
   fread(header.e_ident,16,1,fp);
@@ -45,11 +45,54 @@ void read_header(FILE* fp) {
   printf("\n");
 }
 
+void read_program_header(FILE* fp) {
+  int i = 0, j = 0;
+  int tmp[9];
+  char interp[21];
 
+  printf("程序头:\n");
+  printf("   Type            Offset     VirtAddr     PhysAddr      FileSiz   MemSiz    Flg   Align\n");
+
+  fseek(fp,header.e_phoff,SEEK_SET);
+  for(i = 0; i < header.e_phnum; i++){
+    fread(tmp,4,8,fp);
+    program_Header[i].p_type = tmp[0];
+      if(program_Header[i].p_type == 0x60000000)       printf("   %-10s  ", str_p_type[8]);
+      else if(program_Header[i].p_type == 0x6fffffff)  printf("   %-10s  ", str_p_type[9]);
+      else if(program_Header[i].p_type == 0x70000000)  printf("   %-10s  ", str_p_type[10]);
+      else if(program_Header[i].p_type == 0x7fffffff)  printf("   %-10s  ", str_p_type[11]);
+      else if(program_Header[i].p_type == 0x6474e550)  printf("   %-10s  ", str_p_type[12]);
+      else if(program_Header[i].p_type == (0x60000000 + 0x474e551))  printf("   %-10s  ", str_p_type[13]);
+      else if(program_Header[i].p_type == 0x70000001)  printf("   %-10s  ", str_p_type[14]);
+      else if(program_Header[i].p_type == 0x6474e552)  printf("   %-10s  ", str_p_type[15]);
+      else printf("   %-10s  ", str_p_type[program_Header[i].p_type]);
+
+    program_Header[i].p_offset = tmp[1];   printf(" 0x%08x ", program_Header[i].p_offset);
+    program_Header[i].p_vaddr = tmp[2];    printf(" 0x%08x  ", program_Header[i].p_vaddr);
+    program_Header[i].p_paddr = tmp[3];    printf(" 0x%08x  ", program_Header[i].p_paddr);
+    program_Header[i].p_filesz = tmp[4];   printf(" 0x%08x ", program_Header[i].p_filesz);
+    program_Header[i].p_memsz = tmp[5];    printf(" 0x%08x  ", program_Header[i].p_memsz);
+    program_Header[i].p_flags = tmp[6];
+      if((program_Header[i].p_flags & 0x4) != 0)  printf("%s", str_p_flags[4]); else printf(" ");
+      if((program_Header[i].p_flags & 0x2) != 0)  printf("%s", str_p_flags[2]); else printf(" ");
+      if((program_Header[i].p_flags & 0x1) != 0)  printf("%s", str_p_flags[1]); else printf(" ");
+      printf("  ");
+    program_Header[i].p_align = tmp[7];    printf(" 0x%x\n", program_Header[i].p_align);
+
+    if(program_Header[i].p_type == 3 || program_Header[i].p_type == 4){
+      long cur_pos = ftell(fp);
+      fseek(fp,program_Header[i].p_offset,SEEK_SET);
+      fread(interp,20,1,fp);
+      printf("    %s\n", interp);
+      fseek(fp,cur_pos,SEEK_SET);
+    }
+  }
+  printf("\n");
+}
 
 void read_it(FILE* fp){
   read_header(fp);
-
+  read_program_header(fp);
 }
 
 int main(int argc, char const *argv[]) {

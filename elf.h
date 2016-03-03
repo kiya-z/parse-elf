@@ -27,7 +27,7 @@ Elf32_Ehdr header;
 
 typedef struct elf32_phdr{
  Elf32_Word p_type;
- Elf32_Off p_offset;
+ Elf32_Off  p_offset;
  Elf32_Addr p_vaddr;
  Elf32_Addr p_paddr;
  Elf32_Word p_filesz;
@@ -35,3 +35,5 @@ typedef struct elf32_phdr{
  Elf32_Word p_flags;
  Elf32_Word p_align;
 } Elf32_Phdr;
+
+Elf32_Phdr program_Header[10];

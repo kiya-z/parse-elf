@@ -43,3 +43,30 @@ char str_e_version[2][11] = {
   "EV_NONE",
   "EV_CURRENT"
 };
+
+char str_p_type[16][13] = {
+  "NULL",
+  "LOAD",
+  "DYNAMIC",
+  "INTERP",
+  "NOTE",
+  "SHLIB",
+  "PHDR",
+  "TLS",
+  "LOOS",
+  "HIOS",
+  "LOPROC",
+  "HIPROC",
+  "GNU_EH_FRAME",
+  "GNU_STACK",
+  "EXIDX",
+  "GNU_RELRO"
+};
+
+char str_p_flags[5][2] = {
+  "",
+  "E",
+  "W",
+  "",
+  "R"
+};
