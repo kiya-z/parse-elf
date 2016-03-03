@@ -14,3 +14,32 @@ char str_e_ident_data[3][12] = {
 };
 
 #define EV_CURRENT "1"
+
+char str_e_type[7][10] = {
+  "ET_NONE",
+  "ET_REL",
+  "ET_EXEC",
+  "ET_DYN",
+  "ET_CORE",
+  "ET_LOPROC",
+  "ET_HIPROC"
+};
+
+char str_e_machine[11][15] = {
+  "EM_NONE",
+  "EM_M32",
+  "EM_SPARC",
+  "EM_386",
+  "EM_68K",
+  "EM_88K",
+  "EM_486",
+  "EM_860",
+  "EM_MIPS",
+  "EM_MIPS_RS4_BE",
+  "RESERVED"
+};
+
+char str_e_version[2][11] = {
+  "EV_NONE",
+  "EV_CURRENT"
+};
