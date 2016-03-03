@@ -11,18 +11,16 @@ void read_header(FILE* fp) {
 
   /******ident******/
   fread(header.e_ident,16,1,fp);
-  printf("    MAG:  %s\n", ELFMAG);
-  printf("    类别: %s\n", str_e_ident_class[header.e_ident[4]]);
-  printf("    编码: %s\n", str_e_ident_data[header.e_ident[5]]);
-  printf("    版本: %s\n\n", EV_CURRENT);
+  printf("    MAG:  %s\n    类别: %s\n", ELFMAG, str_e_ident_class[header.e_ident[4]]);
+  printf("    编码: %s\n    版本: %s\n\n", str_e_ident_data[header.e_ident[5]], EV_CURRENT);
 
   /******type/machine/version******/
   unsigned short t1[3];
   fread(t1,2,2,fp);
   header.e_type = t1[0];
-  if (header.e_type == 0xff00) printf("%s\n", str_e_type[5]);
-  else if (header.e_type == 0xffff) printf("%s\n", str_e_type[6]);
-  else printf("  文件类型:  %s\n", str_e_type[header.e_type]);
+    if (header.e_type == 0xff00) printf("%s\n", str_e_type[5]);
+    else if (header.e_type == 0xffff) printf("%s\n", str_e_type[6]);
+    else printf("  文件类型:  %s\n", str_e_type[header.e_type]);
   header.e_machine = t1[1]; printf("  处理器:  %s\n", str_e_machine[header.e_machine > 10 ? 10 : header.e_machine]);
 
   /******version/entry/phoff/shoff******/
@@ -44,21 +42,23 @@ void read_header(FILE* fp) {
   header.e_shnum = t3[4];     printf("  节头表项个数: 0x%x\n", header.e_shnum);
   header.e_shstrndx = t3[5];  printf("  节头表项名字索引: 0x%x\n", header.e_shstrndx);
 
-
   printf("\n");
 }
 
 
 
+void read_it(FILE* fp){
+  read_header(fp);
+
+}
+
 int main(int argc, char const *argv[]) {
   FILE *fp;
-
   fp = fopen("/home/kiya/myspace/parse-elf/libmobisec.so", "rb+");
   if (fp == NULL) {
     printf("file doesn't exists!\n");
   }
-  read_header(fp);
-
+  read_it(fp);
   fclose(fp);
   return 0;
 }
