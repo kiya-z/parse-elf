@@ -70,3 +70,38 @@ char str_p_flags[5][2] = {
   "",
   "R"
 };
+
+
+char str_sh_type[25][15] = {
+  "NULL",
+  "PROGBITS",
+  "SYMTAB",
+  "STRTAB",
+  "RELA",
+  "HASH",
+  "DYNAMIC",
+  "NOTE",
+  "NOBITS",
+  "REL",
+  "SHLIB",
+  "DYNSYM",
+  "",
+  "",
+  "INIT_ARRAY",
+  "FINI_ARRAY",
+  "PREINIT_ARRAY",
+  "GROUP",
+  "SYMTAB_SHNDX",
+  "LOPROC",
+  "HIPROC",
+  "LOUSER",
+  "HIUSER",
+  "ARM_EXIDX",
+  "ARM_ATTRIBUTES"
+};
+
+char str_sh_flag[17] = "WAXMSILOGTmmoEm";
+
+char sh_flag_tips[230] = "\nkey to flags:\nW(WRITE), A(ALLOC), X(EXECINSTR), M(MERGE), S(STRINGS),\
+I(INFO_LINK), L(LINK_ORDER), O(OS_NONCONFORMING), G(GROUP), T(TLS), M(MASKOS),\
+m(MASKPROC), o(ORDERED), E(EXCLUDE), m1(MIPS_GPREL), X(X86_64_LARGE)\n\n";

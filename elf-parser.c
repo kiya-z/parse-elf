@@ -90,9 +90,68 @@ void read_program_header(FILE* fp) {
   printf("\n");
 }
 
+void read_segment_header(FILE* fp) {
+  int i = 0;
+  int tmp[11];
+
+  printf("节头:\n");
+  printf("  [Nr] Name              Type                 Addr      Off       Size    ES  Flg Lk Inf Al\n");
+
+  fseek(fp,header.e_shoff,SEEK_SET);
+  for(i = 0; i < header.e_shnum; i++){
+    fread(tmp,4,10,fp);
+
+    printf("  [%2d]  ", i);
+    segment_header[i].sh_name = tmp[0];       printf("%-15x  ", segment_header[i].sh_name);
+    segment_header[i].sh_type = tmp[1];
+      switch (segment_header[i].sh_type) {
+        case 0x70000000:  printf("%-15s  ", str_sh_type[19]);  break;
+        case 0x7fffffff:  printf("%-15s  ", str_sh_type[20]);  break;
+        case 0x80000000:  printf("%-15s  ", str_sh_type[21]);  break;
+        case 0xffffffff:  printf("%-15s  ", str_sh_type[22]);  break;
+        case 0x70000001:  printf("%-15s  ", str_sh_type[23]);  break;
+        case 0x70000003:  printf("%-15s  ", str_sh_type[24]);  break;
+        default:          printf("%-15s  ", str_sh_type[segment_header[i].sh_type]);  break;
+      }
+
+    segment_header[i].sh_addr = tmp[3];       printf("0x%08x  ", segment_header[i].sh_addr);
+    segment_header[i].sh_offset = tmp[4];     printf("0x%06x  ", segment_header[i].sh_offset);
+    segment_header[i].sh_size = tmp[5];       printf("0x%06x  ", segment_header[i].sh_size);
+    segment_header[i].sh_entsize = tmp[9];    printf("%02x  ", segment_header[i].sh_entsize);
+    segment_header[i].sh_flags = tmp[2];
+        char flags[4] = "";
+        int j = 0;
+        if((segment_header[i].sh_flags & 0x1) != 0)         flags[j++] = str_sh_flag[0];
+        if((segment_header[i].sh_flags & 0x2) != 0)         flags[j++] = str_sh_flag[1];
+        if((segment_header[i].sh_flags & 0x4) != 0)         flags[j++] = str_sh_flag[2];
+        if((segment_header[i].sh_flags & 0x10) != 0)        flags[j++] = str_sh_flag[3];
+        if((segment_header[i].sh_flags & 0x20) != 0)        flags[j++] = str_sh_flag[4];
+        if((segment_header[i].sh_flags & 0x40) != 0)        flags[j++] = str_sh_flag[5];
+        if((segment_header[i].sh_flags & 0x80) != 0)        flags[j++] = str_sh_flag[6];
+        if((segment_header[i].sh_flags & 0x100) != 0)       flags[j++] = str_sh_flag[7];
+        if((segment_header[i].sh_flags & 0x200) != 0)       flags[j++] = str_sh_flag[8];
+        if((segment_header[i].sh_flags & 0x400) != 0)       flags[j++] = str_sh_flag[9];
+        if((segment_header[i].sh_flags & 0x0ff00000) != 0)  flags[j++] = str_sh_flag[10];
+        if((segment_header[i].sh_flags & 0xf0000000) != 0)  flags[j++] = str_sh_flag[11];
+        if((segment_header[i].sh_flags & 0x40000000) != 0)  flags[j++] = str_sh_flag[12];
+        if((segment_header[i].sh_flags & 0x80000000) != 0)  flags[j++] = str_sh_flag[13];
+        if((segment_header[i].sh_flags & 0x10000000) != 0)  flags[j++] = str_sh_flag[14];
+        printf("%3s  ",flags);
+
+    segment_header[i].sh_link = tmp[6];       printf("%x  ", segment_header[i].sh_link);
+    segment_header[i].sh_info = tmp[7];       printf("%x  ", segment_header[i].sh_info);
+    segment_header[i].sh_addralign = tmp[8];  printf("%x  \n", segment_header[i].sh_addralign);
+
+  }
+
+  printf("%s",sh_flag_tips);
+
+}
+
 void read_it(FILE* fp){
   read_header(fp);
   read_program_header(fp);
+  read_segment_header(fp);
 }
 
 int main(int argc, char const *argv[]) {
