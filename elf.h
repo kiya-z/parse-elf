@@ -53,3 +53,4 @@ typedef struct elf32_shdr {
 } Elf32_Shdr;
 
 Elf32_Shdr segment_header[30];
+char segment_header_name[30][30];
