@@ -7,10 +7,15 @@
 
 void read_header(FILE* fp) {
   int i = 0;
-  printf("\n文件头:\n");
 
   /******ident******/
   fread(header.e_ident,16,1,fp);
+  if(header.e_ident[4] == 2){
+    printf("不支持64位elf解析!\n");
+    exit(1);
+  }
+
+  printf("\n文件头:\n");
   printf("    MAG:  %s\n    类别: %s\n", ELFMAG, str_e_ident_class[header.e_ident[4]]);
   printf("    编码: %s\n    版本: %s\n\n", str_e_ident_data[header.e_ident[5]], EV_CURRENT);
 
@@ -200,10 +205,15 @@ void read_it(FILE* fp){
 }
 
 int main(int argc, char const *argv[]) {
+  if (argc == 1) {
+    printf("[usage] elf-parser elf-file-name\n");
+    exit(1);
+  }
   FILE *fp;
-  fp = fopen("/home/kiya/myspace/parse-elf/libmobisec.so", "rb+");
+  fp = fopen(argv[1], "rb+");
   if (fp == NULL) {
     printf("file doesn't exists!\n");
+    exit(1);
   }
   read_it(fp);
   fclose(fp);
