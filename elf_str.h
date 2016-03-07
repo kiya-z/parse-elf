@@ -107,9 +107,9 @@ char str_sh_type[40][23] = {
   "LOOS",   //0x60000000,
   "LOUSER", //0x80000000,
 
-  "verdef",         //0x6ffffffd,
-  "verneed",        //0x6ffffffe,
-  "versym",         //0x6fffffff,
+  "VERDEF",         //0x6ffffffd,
+  "VERNEED",        //0x6ffffffe,
+  "VERSYM",         //0x6fffffff,
   //33~39
   "SPARC_GOTDATA",      //0x70000000,
   "ARM_EXIDX",          //0x70000001,

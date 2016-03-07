@@ -53,7 +53,7 @@ void read_header(FILE* fp) {
   header.e_shnum = t3[4];     printf("  节头表项个数: 0x%x\n", header.e_shnum);
   header.e_shstrndx = t3[5];  printf("  节头表项名字索引: 0x%x\n", header.e_shstrndx);
 
-  printf("\n");
+  printf("\n******************************************************************\n\n");
 }
 
 void read_program_header(FILE* fp) {
@@ -98,7 +98,8 @@ void read_program_header(FILE* fp) {
       printf("    %s\n", interp);
     }
   }
-  printf("\n");
+  printf("\n******************************************************************\n\n");
+
 }
 
 void read_segment_header(FILE* fp) {
@@ -106,7 +107,7 @@ void read_segment_header(FILE* fp) {
   int tmp[11];
 
   printf("节头:\n");
-  printf("  [Nr] Name                       Type                 Addr      Off       Size    ES  Flg Lk Inf Al\n");
+  printf("  [Nr] Name                       Type                 Addr      Off       Size    ES   Flg Lk  Inf Al\n");
 
   fseek(fp,header.e_shoff,SEEK_SET);
   for(i = 0; i < header.e_shnum; i++){
@@ -148,17 +149,24 @@ void read_segment_header(FILE* fp) {
     printf("%-25s ", segment_header_name[i]);
 
     if(segment_header[i].sh_type < 0x19)   printf("%-15s  ", str_sh_type[segment_header[i].sh_type]);
-    int sev_bit = segment_header[i].sh_type & 0x0;
-    int last = segment_header[i].sh_type & 0xf;
-    switch (sev_bit) {
-      case 0x6fff4700:  printf("%-15s  ", str_sh_type[19+last]);  break;
-      case 0x6ffffff0:  printf("%-15s  ", str_sh_type[18+last]);  break;
-      case 0x70000000:  printf("%-15s  ", str_sh_type[33+last]);  break;
-      case 0x7ffffff0:  printf("%-15s  ", str_sh_type[26]);  break;
-      case 0xfffffff0:  printf("%-15s  ", str_sh_type[27]);  break;
-      case 0x60000000:  printf("%-15s  ", str_sh_type[28]);  break;
-      case 0x80000000:  printf("%-15s  ", str_sh_type[29]);  break;
+    else{
+      // printf("%x  ", segment_header[i].sh_type);
+
+      int sev_bit = segment_header[i].sh_type & 0xfffffff0;
+      int last = segment_header[i].sh_type & 0xf;
+
+      // printf("< %x %x > ", sev_bit, last);
+      switch (sev_bit) {
+        case 0x6fff4700:  printf("%-15s  ", str_sh_type[19+last]);  break;
+        case 0x6ffffff0:  printf("%-15s  ", str_sh_type[17+last]);  break;
+        case 0x70000000:  printf("%-15s  ", str_sh_type[33+last]);  break;
+        case 0x7ffffff0:  printf("%-15s  ", str_sh_type[26]);  break;
+        case 0xfffffff0:  printf("%-15s  ", str_sh_type[27]);  break;
+        case 0x60000000:  printf("%-15s  ", str_sh_type[28]);  break;
+        case 0x80000000:  printf("%-15s  ", str_sh_type[29]);  break;
+      }
     }
+
 
     printf("0x%08x  ", segment_header[i].sh_addr);
     printf("0x%06x  ", segment_header[i].sh_offset);
@@ -184,12 +192,15 @@ void read_segment_header(FILE* fp) {
     if((segment_header[i].sh_flags & 0x10000000) != 0)  flags[j++] = str_sh_flag[14];
     printf("%3s  ",flags);
 
-    printf("%x  ", segment_header[i].sh_link);
-    printf("%x  ", segment_header[i].sh_info);
-    printf("%x  \n", segment_header[i].sh_addralign);
+    printf("%2d  ", segment_header[i].sh_link);
+    printf("%2d  ", segment_header[i].sh_info);
+    printf("%2d  \n", segment_header[i].sh_addralign);
   }
 
   printf("%s",sh_flag_tips);
+
+  printf("\n******************************************************************\n\n");
+
 }
 
 void get_section_segment_mapping() {
@@ -206,6 +217,8 @@ void get_section_segment_mapping() {
     }
     printf("\n");
   }
+  printf("\n******************************************************************\n\n");
+
 }
 
 void read_symbol(FILE* fp) {
@@ -251,15 +264,17 @@ void read_symbol(FILE* fp) {
       fseek(fp,cur_pos,SEEK_SET);
     }
   }
+  printf("\n******************************************************************\n\n");
+
 }
 
 void read_it(FILE* fp){
   read_header(fp);
   read_program_header(fp);
   read_segment_header(fp);
-  get_section_segment_mapping();
-
-  read_symbol(fp);
+  // get_section_segment_mapping();
+  //
+  // read_symbol(fp);
 }
 
 int main(int argc, char const *argv[]) {
