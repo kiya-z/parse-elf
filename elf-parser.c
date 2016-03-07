@@ -176,10 +176,27 @@ void read_segment_header(FILE* fp) {
   printf("%s",sh_flag_tips);
 }
 
+void get_section_segment_mapping() {
+  int i = 0, j = 0;
+  printf("段节对应关系:\n");
+  for(i = 0; i < header.e_phnum; i++){
+    unsigned int start_addr = program_Header[i].p_offset;
+    unsigned int end_addr = start_addr + program_Header[i].p_filesz;
+    printf("  %02d   ", i);
+    for(j = 1; j < header.e_shnum; j++){
+      if (segment_header[j].sh_offset >= start_addr && segment_header[j].sh_offset < end_addr) {
+        printf("%s  ", segment_header_name[j]);
+      }
+    }
+    printf("\n");
+  }
+}
+
 void read_it(FILE* fp){
   read_header(fp);
   read_program_header(fp);
   read_segment_header(fp);
+  get_section_segment_mapping();
 }
 
 int main(int argc, char const *argv[]) {
