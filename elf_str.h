@@ -72,7 +72,7 @@ char str_p_flags[5][2] = {
 };
 
 
-char str_sh_type[25][15] = {
+char str_sh_type[40][23] = {
   "NULL",
   "PROGBITS",
   "SYMTAB",
@@ -92,12 +92,32 @@ char str_sh_type[25][15] = {
   "PREINIT_ARRAY",
   "GROUP",
   "SYMTAB_SHNDX",
-  "LOPROC",
-  "HIPROC",
-  "LOUSER",
-  "HIUSER",
-  "ARM_EXIDX",
-  "ARM_ATTRIBUTES"
+  //19~22
+  "GNU_INCREMENTAL_INPUTS",  //0x6fff4700,
+  "GNU_INCREMENTAL_SYMTAB",  //0x6fff4701,
+  "GNU_INCREMENTAL_RELOCS",  //0x6fff4702,
+  "GNU_INCREMENTAL_GOT_PLT", //0x6fff4703,
+  //23~32
+  "GNU_ATTRIBUTES", //0x6ffffff5,
+  "GNU_HASH",       //0x6ffffff6,
+  "GNU_LIBLIST",    //0x6ffffff7,
+    //26~29
+  "HIPROC", //0x7fffffff,
+  "HIUSER", //0xffffffff,
+  "LOOS",   //0x60000000,
+  "LOUSER", //0x80000000,
+
+  "verdef",         //0x6ffffffd,
+  "verneed",        //0x6ffffffe,
+  "versym",         //0x6fffffff,
+  //33~39
+  "SPARC_GOTDATA",      //0x70000000,
+  "ARM_EXIDX",          //0x70000001,
+  "ARM_PREEMPTMAP",     //0x70000002,
+  "ARM_ATTRIBUTES",     //0x70000003,
+  "ARM_DEBUGOVERLAY",   //0x70000004,
+  "ARM_OVERLAYSECTION", //0x70000005,
+  "MIPS_REGINFO",       //0x70000006,
 };
 
 

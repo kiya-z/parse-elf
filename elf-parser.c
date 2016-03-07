@@ -62,21 +62,21 @@ void read_program_header(FILE* fp) {
   char interp[21];
 
   printf("程序头:\n");
-  printf("   Type            Offset     VirtAddr     PhysAddr      FileSiz   MemSiz    Flg   Align\n");
+  printf("   Type                 Offset     VirtAddr     PhysAddr      FileSiz   MemSiz    Flg   Align\n");
 
   fseek(fp,header.e_phoff,SEEK_SET);
   for(i = 0; i < header.e_phnum; i++){
     fread(tmp,4,8,fp);
     program_Header[i].p_type = tmp[0];
-      if(program_Header[i].p_type == 0x60000000)       printf("   %-10s  ", str_p_type[8]);
-      else if(program_Header[i].p_type == 0x6fffffff)  printf("   %-10s  ", str_p_type[9]);
-      else if(program_Header[i].p_type == 0x70000000)  printf("   %-10s  ", str_p_type[10]);
-      else if(program_Header[i].p_type == 0x7fffffff)  printf("   %-10s  ", str_p_type[11]);
-      else if(program_Header[i].p_type == 0x6474e550)  printf("   %-10s  ", str_p_type[12]);
-      else if(program_Header[i].p_type == (0x60000000 + 0x474e551))  printf("   %-10s  ", str_p_type[13]);
-      else if(program_Header[i].p_type == 0x70000001)  printf("   %-10s  ", str_p_type[14]);
-      else if(program_Header[i].p_type == 0x6474e552)  printf("   %-10s  ", str_p_type[15]);
-      else printf("   %-10s  ", str_p_type[program_Header[i].p_type]);
+      if(program_Header[i].p_type == 0x60000000)       printf("   %-15s  ", str_p_type[8]);
+      else if(program_Header[i].p_type == 0x6fffffff)  printf("   %-15s  ", str_p_type[9]);
+      else if(program_Header[i].p_type == 0x70000000)  printf("   %-15s  ", str_p_type[10]);
+      else if(program_Header[i].p_type == 0x7fffffff)  printf("   %-15s  ", str_p_type[11]);
+      else if(program_Header[i].p_type == 0x6474e550)  printf("   %-15s  ", str_p_type[12]);
+      else if(program_Header[i].p_type == (0x60000000 + 0x474e551))  printf("   %-15s  ", str_p_type[13]);
+      else if(program_Header[i].p_type == 0x70000001)  printf("   %-15s  ", str_p_type[14]);
+      else if(program_Header[i].p_type == 0x6474e552)  printf("   %-15s  ", str_p_type[15]);
+      else printf("   %-15s  ", str_p_type[program_Header[i].p_type]);
 
     program_Header[i].p_offset = tmp[1];   printf(" 0x%08x ", program_Header[i].p_offset);
     program_Header[i].p_vaddr = tmp[2];    printf(" 0x%08x  ", program_Header[i].p_vaddr);
@@ -90,7 +90,7 @@ void read_program_header(FILE* fp) {
       printf("  ");
     program_Header[i].p_align = tmp[7];    printf(" 0x%x\n", program_Header[i].p_align);
 
-    if(program_Header[i].p_type == 3 || program_Header[i].p_type == 4){
+    if(program_Header[i].p_type == 3){
       long cur_pos = ftell(fp);
       fseek(fp,program_Header[i].p_offset,SEEK_SET);
       fread(interp,20,1,fp);
@@ -147,14 +147,17 @@ void read_segment_header(FILE* fp) {
     // printf("%-15x  ", segment_header[i].sh_name);
     printf("%-25s ", segment_header_name[i]);
 
-    switch (segment_header[i].sh_type) {
-      case 0x70000000:  printf("%-15s  ", str_sh_type[19]);  break;
-      case 0x7fffffff:  printf("%-15s  ", str_sh_type[20]);  break;
-      case 0x80000000:  printf("%-15s  ", str_sh_type[21]);  break;
-      case 0xffffffff:  printf("%-15s  ", str_sh_type[22]);  break;
-      case 0x70000001:  printf("%-15s  ", str_sh_type[23]);  break;
-      case 0x70000003:  printf("%-15s  ", str_sh_type[24]);  break;
-      default:          printf("%-15s  ", str_sh_type[segment_header[i].sh_type]);  break;
+    if(segment_header[i].sh_type < 0x19)   printf("%-15s  ", str_sh_type[segment_header[i].sh_type]);
+    int sev_bit = segment_header[i].sh_type & 0x0;
+    int last = segment_header[i].sh_type & 0xf;
+    switch (sev_bit) {
+      case 0x6fff4700:  printf("%-15s  ", str_sh_type[19+last]);  break;
+      case 0x6ffffff0:  printf("%-15s  ", str_sh_type[18+last]);  break;
+      case 0x70000000:  printf("%-15s  ", str_sh_type[33+last]);  break;
+      case 0x7ffffff0:  printf("%-15s  ", str_sh_type[26]);  break;
+      case 0xfffffff0:  printf("%-15s  ", str_sh_type[27]);  break;
+      case 0x60000000:  printf("%-15s  ", str_sh_type[28]);  break;
+      case 0x80000000:  printf("%-15s  ", str_sh_type[29]);  break;
     }
 
     printf("0x%08x  ", segment_header[i].sh_addr);
