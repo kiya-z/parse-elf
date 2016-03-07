@@ -5,6 +5,12 @@
 #include"elf.h"
 #include"elf_str.h"
 
+#define ELF32_ST_BIND(i) ((i)>>4)
+#define ELF32_ST_TYPE(i) ((i)&0xf)
+#define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
+
+int shstrtab_offset = 0, strtab_offset = 0, dynstr_offset = 0;
+
 void read_header(FILE* fp) {
   int i = 0;
 
@@ -88,8 +94,8 @@ void read_program_header(FILE* fp) {
       long cur_pos = ftell(fp);
       fseek(fp,program_Header[i].p_offset,SEEK_SET);
       fread(interp,20,1,fp);
-      printf("    %s\n", interp);
       fseek(fp,cur_pos,SEEK_SET);
+      printf("    %s\n", interp);
     }
   }
   printf("\n");
@@ -131,6 +137,8 @@ void read_segment_header(FILE* fp) {
     char tmp_name[31];
     fseek(fp,shstrtab_offset+segment_header[i].sh_name,SEEK_SET);
     fread(segment_header_name[i],30,1,fp);
+    if(strcmp(segment_header_name[i],".dynstr") == 0)   dynstr_offset = segment_header[i].sh_offset;
+    else if(strcmp(segment_header_name[i],".strtab") == 0)   strtab_offset = segment_header[i].sh_offset;
   }
   fseek(fp,cur_pos,SEEK_SET);
 
@@ -197,11 +205,58 @@ void get_section_segment_mapping() {
   }
 }
 
+void read_symbol(FILE* fp) {
+  int i = 0,j = 0;
+  for(i = 0 ;i < header.e_shnum; i++){
+    if(segment_header[i].sh_type == 2 || segment_header[i].sh_type == 11){
+      printf("\nSymbols of '%s':\n",segment_header_name[i]);
+      printf("   Num:    Value  Size Type     Bind     Ndx  Name\n");
+
+      int num = segment_header[i].sh_size / segment_header[i].sh_entsize;
+      char buffer[0x10];
+      long cur_pos = ftell(fp);
+      int name_tab_offset = 0;
+      char name[31];
+      if(segment_header[i].sh_type == 2)  name_tab_offset = strtab_offset;  else name_tab_offset = dynstr_offset;
+
+      for(j = 0; j < num; j++){
+        fseek(fp,segment_header[i].sh_offset+j*segment_header[i].sh_entsize,SEEK_SET);
+        fread(buffer,segment_header[i].sh_entsize,1,fp);
+        Elf32_Sym* sym_tmp = (Elf32_Sym*)buffer;
+        printf("    %2d:  %08x  %3d ", j,sym_tmp->st_value,sym_tmp->st_size);
+
+        char bind = ELF32_ST_BIND(sym_tmp->st_info);
+        char type = ELF32_ST_TYPE(sym_tmp->st_info);
+        char info = ELF32_ST_INFO(bind,type);
+
+        printf("%-7s  %-7s  ", str_symbol_table_type[type],str_symbol_table_bind[bind]);
+        // printf("%d   ", info);
+
+        switch (sym_tmp->st_shndx) {
+          case 0x0:    printf("%3s  ", str_section_header_index[0]); break;
+          case 0xfff1: printf("%3s  ", str_section_header_index[1]); break;
+          case 0xfff2: printf("%3s  ", str_section_header_index[2]); break;
+          default:     printf("%3d  ", sym_tmp->st_shndx);
+        }
+
+        fseek(fp,name_tab_offset+sym_tmp->st_name,SEEK_SET);
+        fread(name,30,1,fp);
+        printf("%-30s", name);
+        //sym_tmp->st_info);
+        printf("\n");
+      }
+      fseek(fp,cur_pos,SEEK_SET);
+    }
+  }
+}
+
 void read_it(FILE* fp){
   read_header(fp);
   read_program_header(fp);
   read_segment_header(fp);
   get_section_segment_mapping();
+
+  read_symbol(fp);
 }
 
 int main(int argc, char const *argv[]) {

@@ -100,8 +100,31 @@ char str_sh_type[25][15] = {
   "ARM_ATTRIBUTES"
 };
 
+
 char str_sh_flag[17] = "WAXMSILOGTmmoEm";
 
 char sh_flag_tips[230] = "\nkey to flags:\nW(WRITE), A(ALLOC), X(EXECINSTR), M(MERGE), S(STRINGS),\
 I(INFO_LINK), L(LINK_ORDER), O(OS_NONCONFORMING), G(GROUP), T(TLS), M(MASKOS),\
 m(MASKPROC), o(ORDERED), E(EXCLUDE), m1(MIPS_GPREL), X(X86_64_LARGE)\n\n";
+
+char str_section_header_index[3][4] = {
+  "UND",
+  "ABS",
+  "COM"
+};
+
+char str_symbol_table_type[7][8] = {
+  "NOTYPE",
+  "OBJECT",
+  "FUNC",
+  "SECTION",
+  "FILE",
+  "COMMON",
+  "TLS"
+};
+
+char str_symbol_table_bind[3][7] = {
+  "LOCAL",
+  "GLOBAL",
+  "WEAK"
+};

@@ -54,3 +54,14 @@ typedef struct elf32_shdr {
 
 Elf32_Shdr segment_header[30];
 char segment_header_name[30][30];
+
+typedef struct elf32_sym{
+ Elf32_Word st_name;
+ Elf32_Addr st_value;
+ Elf32_Word st_size;
+ unsigned char st_info;
+ unsigned char st_other;
+ Elf32_Half st_shndx;
+} Elf32_Sym;
+
+int symbols_offset[3];
