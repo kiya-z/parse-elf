@@ -201,3 +201,97 @@ char str_relocation_type[46][24] = {
   "R_386_GNU_VTINHERIT", // 250,
   "R_386_GNU_VTENTRY", // 251
 };
+
+// 0 : val    1 : ptr
+char str_dynamic_type[82][2][17] = {
+  { "NUL",  0},
+  { "NEEDE",  0},
+  { "PLTRELS",  0},
+  { "PLTGO",  1},
+  { "HAS",  1},
+  { "STRTA",  1},
+  { "SYMTA",  1},
+  { "RELA",  1},
+  { "RELAS",  0},
+  { "RELAEN",  0},
+  { "STRSZ",  0},
+  { "SYMENT",  0},
+  { "INIT",  1},
+  { "FINI",  1},
+  { "SONAME",  0},
+  { "RPATH",  0},
+  { "SYMBOLIC",  0},
+  { "REL",  1},
+  { "RELSZ",  0},
+  { "RELENT",  0},
+  { "PLTREL",  0},
+  { "DEBUG",  1},
+  { "TEXTREL",  0},
+  { "JMPREL",   1},
+  { "BIND_NOW",   0},
+  { "INIT_ARRAY",   1},
+  { "FINI_ARRAY",   1},
+  { "INIT_ARRAYSZ",  0},
+  { "FINI_ARRAYSZ",  0},
+  { "RUNPATH",  0},
+  { "FLAGS",  0}, //30
+  {"",0}, //
+  { "PREINIT_ARRAY",  1},// 32
+  { "PREINIT_ARRAYSZ",  0}, //33
+  { "MAXPOSTAGS",  0}, //34
+
+  { "LOOS",  0},       //0x6000000d
+  { "SUNW_FILTER",  1},       //0x6000000e
+
+  { "SUNW_CAP",  1},       //0x60000010
+  { "SUNW_SYMTAB",  1},       //0x600000011
+  { "SUNW_SYMSZ",  0},       //0x60000012
+  { "SUNW_ENCODING",  0},       //0x60000013
+  { "SUNW_SYMSORT",  1},       //0x60000014
+  { "SUNW_SYMSORTSZ",  0},       //0x60000015
+  { "SUNW_TLSSORT",  1},       //0x60000016
+  { "SUNW_TLSSORTSZ",  0},       //0x60000017
+  { "SUNW_CAPINFO",  1},       //0x60000018
+  { "SUNW_STRPAD",  0},       //0x60000019
+  { "SUNW_CAPCHAIN",  1},       //0x6000001a
+  { "SUNW_LDMACH",  0},       //0x6000001b
+  { "",0},
+  { "SUNW_CAPCHAINENT",  0},       //0x6000001d
+  { "SUNW_CAPCHAINSZ",  0},       //0x6000001f
+
+  { "HIOS",  0},  //0x6ffff000
+  { "VALRNGLO",  0},  //0x6ffffd00
+
+  { "CHECKSUM",  0},  //0x6ffffdf8
+  { "PLTPADSZ",  0},  //0x6ffffdf9
+  { "MOVEENT",  0},  //0x6ffffdfa
+  { "MOVESZ",  0},  //0x6ffffdfb
+  {"",0},
+  { "POSFLAG_1",  0},  //0x6ffffdfd
+  { "SYMINSZ",  0},  //0x6ffffdfe
+  { "VALRNGHI",  0},   //0x6ffffdff
+
+  { "ADDRRNGLO",  0},  //0x6ffffe00
+
+  { "CONFIG",  1},//0x6ffffefa
+  { "DEPAUDIT",  1},//0x6ffffefb
+  { "AUDIT",  1},//0x6ffffefc
+  { "PLTPAD",  1},//0x6ffffefd
+  { "MOVETAB",  1},//0x6ffffefe
+  { "ADDRRNGHI",  0},  //0x6ffffeff
+
+  { "VERSYM",     0},  //0x6ffffff0
+  { "RELACOUNT",  0},  //0x6ffffff9
+  { "RELCOUNT",   0},  //0x6ffffffa
+  { "FLAGS_1",    0},  //0x6ffffffb
+  { "VERDEF",  1},     //0x6ffffffc
+  { "VERDEFNUM",  0},  //0x6ffffffd
+  { "VERNEED",   1},   //0x6ffffffe
+  { "VERNEEDNUM",  0}, //0x6fffffff
+
+  { "LOPROC",  0},//0x70000000
+  { "SPARC_REGISTER",  0},//0x70000001
+  { "AUXILIARY",  0},//0x7ffffffd
+  { "USED",  0},//0x7ffffffe
+  { "HIPROC",  0}//0x7fffffff
+};

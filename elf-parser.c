@@ -307,6 +307,21 @@ void read_relocation(FILE *fp){
   printf("\n******************************************************************\n\n");
 }
 
+void read_dynamic(FILE* fp){
+  int i = 0;
+  for(i = 0; i < header.e_shnum; i++){
+    if (section_header[i].sh_type == 6) {
+      int num = section_header[i].sh_size / section_header[i].sh_entsize;
+      printf("Dynamic section at offset 0x%x contains %d entries:\n", section_header[i].sh_offset,num);
+
+
+
+
+      break;
+    }
+  }
+}
+
 void press_to_continue() {
   // char ch = getchar();
   // if(ch != '\n') exit(1);
@@ -330,7 +345,9 @@ void read_it(FILE* fp){
 
   read_relocation(fp);
   press_to_continue();
-  
+
+  read_dynamic(fp);
+
 }
 
 int main(int argc, char const *argv[]) {
