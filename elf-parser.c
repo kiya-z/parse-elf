@@ -329,12 +329,13 @@ void read_dynamic(FILE* fp){
         else if(dyn_tmp->d_tag == 0x6ffff000)  type_ndx = 52;
         else if(dyn_tmp->d_tag == 0x6ffffd00)  type_ndx = 53;
         else if(dyn_tmp->d_tag == 0x6ffffe00)  type_ndx = 62;
+        else if(dyn_tmp->d_tag == 0x6ffffef5)  type_ndx = 82;
         else if(and_res == 0x6ffffdf0)  type_ndx = dyn_tmp->d_tag-0x6ffffdc2;
         else if(and_res == 0x6ffffef0)  type_ndx = dyn_tmp->d_tag-0x6ffffebb;
         else if(and_res == 0x6ffffff0)  type_ndx = dyn_tmp->d_tag-0x6fffffab;
         else if(and_res == 0x70000000)  type_ndx = dyn_tmp->d_tag-0x6fffffb3;
         else if(and_res == 0x7ffffff0)  type_ndx = dyn_tmp->d_tag-0x7fffffae;
-        printf("ndx: %x  ", type_ndx);
+        printf("ndx: %d  ", type_ndx);
         printf("%-17s   ", str_dynamic_type[type_ndx][0]);
         if(str_dynamic_type[type_ndx][1] == 0)  printf("%d ( bytes )\n", dyn_tmp->d_un.d_val);
         else printf("0x%08x\n", dyn_tmp->d_un.d_ptr);

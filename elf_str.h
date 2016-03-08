@@ -203,7 +203,7 @@ char str_relocation_type[46][24] = {
 };
 
 // 0 : val    1 : ptr
-char str_dynamic_type[82][2][17] = {
+char str_dynamic_type[83][2][17] = {
   { "NUL",  0},
   { "NEEDE",  0},
   { "PLTRELS",  0},
@@ -293,5 +293,7 @@ char str_dynamic_type[82][2][17] = {
   { "SPARC_REGISTER",  0},//0x70000001
   { "AUXILIARY",  0},//0x7ffffffd
   { "USED",  0},//0x7ffffffe
-  { "HIPROC",  0}//0x7fffffff
+  { "HIPROC",  0},//0x7fffffff
+
+  { "GNU_HASH", 1}
 };
