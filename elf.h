@@ -52,8 +52,8 @@ typedef struct elf32_shdr {
  Elf32_Word sh_entsize;
 } Elf32_Shdr;
 
-Elf32_Shdr segment_header[30];
-char segment_header_name[30][30];
+Elf32_Shdr section_header[30];
+char section_header_name[30][30];
 
 typedef struct elf32_sym{
  Elf32_Word st_name;
@@ -65,3 +65,36 @@ typedef struct elf32_sym{
 } Elf32_Sym;
 
 int symbols_offset[3];
+
+//type:REL
+typedef struct elf32_rel {
+ Elf32_Addr r_offset;
+ Elf32_Word r_info;
+} Elf32_Rel;
+
+
+
+//type:RELA
+// typedef struct elf32_rela{
+//  Elf32_Addr r_offset;
+//  Elf32_Word r_info;
+//  Elf32_Sword r_addend;
+// } Elf32_Rela;
+
+typedef struct elf32_note {
+ Elf32_Word n_namesz;
+ Elf32_Word n_descsz;
+ Elf32_Word n_type;
+} Elf32_Nhdr;
+
+typedef struct dynamic{
+ Elf32_Sword d_tag;
+ union{
+ Elf32_Sword d_val;
+ Elf32_Addr d_ptr;
+ } d_un;
+} Elf32_Dyn;
+
+// .got SHT_PROGBITS SHF_ALLOC + SHF_WRITE
+// .hash SHT_HASH SHF_ALLOC
+// .plt SHT_PROGBITS SHF_ALLOC + SHF_EXECINSTR

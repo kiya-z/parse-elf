@@ -9,7 +9,11 @@
 #define ELF32_ST_TYPE(i) ((i)&0xf)
 #define ELF32_ST_INFO(b,t) (((b)<<4)+((t)&0xf))
 
+#define ELF32_R_SYM(x) ((x) >> 8)
+#define ELF32_R_TYPE(x) ((x) & 0xff)
+
 int shstrtab_offset = 0, strtab_offset = 0, dynstr_offset = 0;
+int dynsym_ndx = 0;
 
 void read_header(FILE* fp) {
   int i = 0;
@@ -112,23 +116,23 @@ void read_segment_header(FILE* fp) {
   fseek(fp,header.e_shoff,SEEK_SET);
   for(i = 0; i < header.e_shnum; i++){
     fread(tmp,4,10,fp);
-    segment_header[i].sh_name = tmp[0];
-    segment_header[i].sh_type = tmp[1];
-    segment_header[i].sh_addr = tmp[3];
-    segment_header[i].sh_offset = tmp[4];
-    segment_header[i].sh_size = tmp[5];
-    segment_header[i].sh_entsize = tmp[9];
-    segment_header[i].sh_flags = tmp[2];
-    segment_header[i].sh_link = tmp[6];
-    segment_header[i].sh_info = tmp[7];
-    segment_header[i].sh_addralign = tmp[8];
+    section_header[i].sh_name = tmp[0];
+    section_header[i].sh_type = tmp[1];
+    section_header[i].sh_addr = tmp[3];
+    section_header[i].sh_offset = tmp[4];
+    section_header[i].sh_size = tmp[5];
+    section_header[i].sh_entsize = tmp[9];
+    section_header[i].sh_flags = tmp[2];
+    section_header[i].sh_link = tmp[6];
+    section_header[i].sh_info = tmp[7];
+    section_header[i].sh_addralign = tmp[8];
 
-    if (segment_header[i].sh_type == 0x3) {
+    if (section_header[i].sh_type == 0x3) {
       long cur_pos = ftell(fp);
       char tmp_name[31];
 
-      fseek(fp,segment_header[i].sh_offset+segment_header[i].sh_name,SEEK_SET); fread(tmp_name,30,1,fp);
-      if(strcmp(tmp_name,".shstrtab") == 0) shstrtab_offset = segment_header[i].sh_offset;
+      fseek(fp,section_header[i].sh_offset+section_header[i].sh_name,SEEK_SET); fread(tmp_name,30,1,fp);
+      if(strcmp(tmp_name,".shstrtab") == 0) shstrtab_offset = section_header[i].sh_offset;
       fseek(fp,cur_pos,SEEK_SET);
     }
   }
@@ -136,26 +140,22 @@ void read_segment_header(FILE* fp) {
   long cur_pos = ftell(fp);
   for(i = 0; i < header.e_shnum; i++){
     char tmp_name[31];
-    fseek(fp,shstrtab_offset+segment_header[i].sh_name,SEEK_SET);
-    fread(segment_header_name[i],30,1,fp);
-    if(strcmp(segment_header_name[i],".dynstr") == 0)   dynstr_offset = segment_header[i].sh_offset;
-    else if(strcmp(segment_header_name[i],".strtab") == 0)   strtab_offset = segment_header[i].sh_offset;
+    fseek(fp,shstrtab_offset+section_header[i].sh_name,SEEK_SET);
+    fread(section_header_name[i],30,1,fp);
+    if(strcmp(section_header_name[i],".dynstr") == 0)  dynstr_offset = section_header[i].sh_offset;
+    else if(strcmp(section_header_name[i],".strtab") == 0)   strtab_offset = section_header[i].sh_offset;
   }
   fseek(fp,cur_pos,SEEK_SET);
 
   for(i = 0; i < header.e_shnum; i++){
     printf("  [%2d]  ", i);
-    // printf("%-15x  ", segment_header[i].sh_name);
-    printf("%-25s ", segment_header_name[i]);
+    printf("%-25s ", section_header_name[i]);
 
-    if(segment_header[i].sh_type < 0x19)   printf("%-15s  ", str_sh_type[segment_header[i].sh_type]);
+    if(section_header[i].sh_type < 0x19)   printf("%-15s  ", str_sh_type[section_header[i].sh_type]);
     else{
-      // printf("%x  ", segment_header[i].sh_type);
+      int sev_bit = section_header[i].sh_type & 0xfffffff0;
+      int last = section_header[i].sh_type & 0xf;
 
-      int sev_bit = segment_header[i].sh_type & 0xfffffff0;
-      int last = segment_header[i].sh_type & 0xf;
-
-      // printf("< %x %x > ", sev_bit, last);
       switch (sev_bit) {
         case 0x6fff4700:  printf("%-15s  ", str_sh_type[19+last]);  break;
         case 0x6ffffff0:  printf("%-15s  ", str_sh_type[17+last]);  break;
@@ -167,34 +167,33 @@ void read_segment_header(FILE* fp) {
       }
     }
 
-
-    printf("0x%08x  ", segment_header[i].sh_addr);
-    printf("0x%06x  ", segment_header[i].sh_offset);
-    printf("0x%06x  ", segment_header[i].sh_size);
-    printf("%02x  ", segment_header[i].sh_entsize);
+    printf("0x%08x  ", section_header[i].sh_addr);
+    printf("0x%06x  ", section_header[i].sh_offset);
+    printf("0x%06x  ", section_header[i].sh_size);
+    printf("%02x  ", section_header[i].sh_entsize);
 
     char flags[4] = "";
     int j = 0;
-    if((segment_header[i].sh_flags & 0x1) != 0)         flags[j++] = str_sh_flag[0];
-    if((segment_header[i].sh_flags & 0x2) != 0)         flags[j++] = str_sh_flag[1];
-    if((segment_header[i].sh_flags & 0x4) != 0)         flags[j++] = str_sh_flag[2];
-    if((segment_header[i].sh_flags & 0x10) != 0)        flags[j++] = str_sh_flag[3];
-    if((segment_header[i].sh_flags & 0x20) != 0)        flags[j++] = str_sh_flag[4];
-    if((segment_header[i].sh_flags & 0x40) != 0)        flags[j++] = str_sh_flag[5];
-    if((segment_header[i].sh_flags & 0x80) != 0)        flags[j++] = str_sh_flag[6];
-    if((segment_header[i].sh_flags & 0x100) != 0)       flags[j++] = str_sh_flag[7];
-    if((segment_header[i].sh_flags & 0x200) != 0)       flags[j++] = str_sh_flag[8];
-    if((segment_header[i].sh_flags & 0x400) != 0)       flags[j++] = str_sh_flag[9];
-    if((segment_header[i].sh_flags & 0x0ff00000) != 0)  flags[j++] = str_sh_flag[10];
-    if((segment_header[i].sh_flags & 0xf0000000) != 0)  flags[j++] = str_sh_flag[11];
-    if((segment_header[i].sh_flags & 0x40000000) != 0)  flags[j++] = str_sh_flag[12];
-    if((segment_header[i].sh_flags & 0x80000000) != 0)  flags[j++] = str_sh_flag[13];
-    if((segment_header[i].sh_flags & 0x10000000) != 0)  flags[j++] = str_sh_flag[14];
+    if((section_header[i].sh_flags & 0x1) != 0)         flags[j++] = str_sh_flag[0];
+    if((section_header[i].sh_flags & 0x2) != 0)         flags[j++] = str_sh_flag[1];
+    if((section_header[i].sh_flags & 0x4) != 0)         flags[j++] = str_sh_flag[2];
+    if((section_header[i].sh_flags & 0x10) != 0)        flags[j++] = str_sh_flag[3];
+    if((section_header[i].sh_flags & 0x20) != 0)        flags[j++] = str_sh_flag[4];
+    if((section_header[i].sh_flags & 0x40) != 0)        flags[j++] = str_sh_flag[5];
+    if((section_header[i].sh_flags & 0x80) != 0)        flags[j++] = str_sh_flag[6];
+    if((section_header[i].sh_flags & 0x100) != 0)       flags[j++] = str_sh_flag[7];
+    if((section_header[i].sh_flags & 0x200) != 0)       flags[j++] = str_sh_flag[8];
+    if((section_header[i].sh_flags & 0x400) != 0)       flags[j++] = str_sh_flag[9];
+    if((section_header[i].sh_flags & 0x0ff00000) != 0)  flags[j++] = str_sh_flag[10];
+    if((section_header[i].sh_flags & 0xf0000000) != 0)  flags[j++] = str_sh_flag[11];
+    if((section_header[i].sh_flags & 0x40000000) != 0)  flags[j++] = str_sh_flag[12];
+    if((section_header[i].sh_flags & 0x80000000) != 0)  flags[j++] = str_sh_flag[13];
+    if((section_header[i].sh_flags & 0x10000000) != 0)  flags[j++] = str_sh_flag[14];
     printf("%3s  ",flags);
 
-    printf("%2d  ", segment_header[i].sh_link);
-    printf("%2d  ", segment_header[i].sh_info);
-    printf("%2d  \n", segment_header[i].sh_addralign);
+    printf("%2d  ", section_header[i].sh_link);
+    printf("%2d  ", section_header[i].sh_info);
+    printf("%2d  \n", section_header[i].sh_addralign);
   }
 
   printf("%s",sh_flag_tips);
@@ -211,8 +210,8 @@ void get_section_segment_mapping() {
     unsigned int end_addr = start_addr + program_Header[i].p_filesz;
     printf("  %02d   ", i);
     for(j = 1; j < header.e_shnum; j++){
-      if (segment_header[j].sh_offset >= start_addr && segment_header[j].sh_offset < end_addr) {
-        printf("%s  ", segment_header_name[j]);
+      if (section_header[j].sh_offset >= start_addr && section_header[j].sh_offset < end_addr) {
+        printf("%s  ", section_header_name[j]);
       }
     }
     printf("\n");
@@ -224,26 +223,28 @@ void get_section_segment_mapping() {
 void read_symbol(FILE* fp) {
   int i = 0,j = 0;
   for(i = 0 ;i < header.e_shnum; i++){
-    if(segment_header[i].sh_type == 2 || segment_header[i].sh_type == 11){
-      printf("\nSymbols of '%s':\n",segment_header_name[i]);
+    if(section_header[i].sh_type == 2 || section_header[i].sh_type == 11){
+      printf("\nSymbols of '%s':\n",section_header_name[i]);
       printf("   Num:    Value  Size Type     Bind     Ndx  Name\n");
 
-      int num = segment_header[i].sh_size / segment_header[i].sh_entsize;
+      int num = section_header[i].sh_size / section_header[i].sh_entsize;
       char buffer[0x10];
-      long cur_pos = ftell(fp);
       int name_tab_offset = 0;
       char name[31];
-      if(segment_header[i].sh_type == 2)  name_tab_offset = strtab_offset;  else name_tab_offset = dynstr_offset;
+      if(section_header[i].sh_type == 2) {
+        dynsym_ndx = i;
+        name_tab_offset = strtab_offset;
+      } else name_tab_offset = dynstr_offset;
 
       for(j = 0; j < num; j++){
-        fseek(fp,segment_header[i].sh_offset+j*segment_header[i].sh_entsize,SEEK_SET);
-        fread(buffer,segment_header[i].sh_entsize,1,fp);
+        fseek(fp,section_header[i].sh_offset+j*section_header[i].sh_entsize,SEEK_SET);
+        fread(buffer,section_header[i].sh_entsize,1,fp);
         Elf32_Sym* sym_tmp = (Elf32_Sym*)buffer;
         printf("    %2d:  %08x  %3d ", j,sym_tmp->st_value,sym_tmp->st_size);
 
         char bind = ELF32_ST_BIND(sym_tmp->st_info);
         char type = ELF32_ST_TYPE(sym_tmp->st_info);
-        char info = ELF32_ST_INFO(bind,type);
+        // char info = ELF32_ST_INFO(bind,type);
 
         printf("%-7s  %-7s  ", str_symbol_table_type[type],str_symbol_table_bind[bind]);
         // printf("%d   ", info);
@@ -253,28 +254,82 @@ void read_symbol(FILE* fp) {
           case 0xfff1: printf("%3s  ", str_section_header_index[1]); break;
           case 0xfff2: printf("%3s  ", str_section_header_index[2]); break;
           default:     printf("%3d  ", sym_tmp->st_shndx);
+          // default:     printf("%-30s  ", section_header_name[sym_tmp->st_shndx]);
         }
 
         fseek(fp,name_tab_offset+sym_tmp->st_name,SEEK_SET);
         fread(name,30,1,fp);
         printf("%-30s", name);
-        //sym_tmp->st_info);
         printf("\n");
       }
-      fseek(fp,cur_pos,SEEK_SET);
     }
   }
   printf("\n******************************************************************\n\n");
 
 }
 
+void read_relocation(FILE *fp){
+  int i = 0,j = 0;
+  for(i = 0; i < header.e_shnum; i++){
+    if(section_header[i].sh_type == 0x9){
+      int rel_num = section_header[i].sh_size / section_header[i].sh_entsize;
+      printf("重定位节 '%s' 位于偏移量 0x%x 含有 %d 个条目:\n", section_header_name[i],section_header[i].sh_offset,rel_num);
+      printf(" Offset     Info    Type            Sym.Value  Sym. Name\n");
+
+      for(j = 0 ; j < rel_num; j++){
+        unsigned int rel_tmp[8];
+        fseek(fp,section_header[i].sh_offset+j*section_header[i].sh_entsize,SEEK_SET);
+        fread(rel_tmp,8,1,fp);
+        Elf32_Rel* rel = (Elf32_Rel*)rel_tmp;
+        char sym = ELF32_R_SYM(rel->r_info);
+        char type = ELF32_R_TYPE(rel->r_info);
+
+        printf("%08x  %08x  ", rel->r_offset, rel->r_info);
+        if(type == 200) printf("%s  ", str_relocation_type[43]);
+        if(type == 250) printf("%s  ", str_relocation_type[44]);
+        if(type == 251) printf("%s  ", str_relocation_type[45]);
+        else printf("%s  ", str_relocation_type[type]);
+
+        //跳到dynstr_tab读取索引为sym的一项，取出value和name
+        char buffer[0x10], name[31];
+        fseek(fp,section_header[dynsym_ndx].sh_offset+sym*section_header[dynsym_ndx].sh_entsize,SEEK_SET);
+        printf("%lx ", ftell(fp));
+        fread(buffer,section_header[dynsym_ndx].sh_entsize,1,fp);
+        printf("%s  ", buffer);
+        Elf32_Sym* sym_tmp = (Elf32_Sym*)buffer;
+        fseek(fp,dynstr_offset+sym_tmp->st_name,SEEK_SET);
+        printf("%x %x %lx ",dynstr_offset, sym_tmp->st_name,ftell(fp));
+        fread(name,30,1,fp);
+        printf("%8x %s\n", sym_tmp->st_value, name);
+      }
+      printf("\n");
+    }
+  }
+  printf("\n******************************************************************\n\n");
+}
+
+void press_to_continue() {
+  // char ch = getchar();
+  // if(ch != '\n') exit(1);
+}
+
 void read_it(FILE* fp){
   read_header(fp);
+  press_to_continue();
+
   read_program_header(fp);
+  press_to_continue();
+
   read_segment_header(fp);
-  // get_section_segment_mapping();
-  //
-  // read_symbol(fp);
+  press_to_continue();
+
+  get_section_segment_mapping();
+  press_to_continue();
+
+  read_symbol(fp);
+  press_to_continue();
+
+  read_relocation(fp);
 }
 
 int main(int argc, char const *argv[]) {
@@ -282,6 +337,7 @@ int main(int argc, char const *argv[]) {
     printf("[usage] elf-parser elf-file-name\n");
     exit(1);
   }
+  printf("\n>>>>>>>>>>>>>>>>>>  \"%s\"  <<<<<<<<<<<<<<<<<<<<<\n",argv[1]);
   FILE *fp;
   fp = fopen(argv[1], "rb+");
   if (fp == NULL) {
