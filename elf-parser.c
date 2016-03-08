@@ -231,13 +231,15 @@ void read_symbol(FILE* fp) {
       char buffer[0x10];
       int name_tab_offset = 0;
       char name[31];
-      if(section_header[i].sh_type == 2) {
-        dynsym_ndx = i;
-        name_tab_offset = strtab_offset;
-      } else name_tab_offset = dynstr_offset;
+      if(section_header[i].sh_type == 2) name_tab_offset = strtab_offset;
+      else {
+          dynsym_ndx = i;
+          name_tab_offset = dynstr_offset;
+      }
 
       for(j = 0; j < num; j++){
         fseek(fp,section_header[i].sh_offset+j*section_header[i].sh_entsize,SEEK_SET);
+        if(j == 2)  printf("%lx  ", ftell(fp));
         fread(buffer,section_header[i].sh_entsize,1,fp);
         Elf32_Sym* sym_tmp = (Elf32_Sym*)buffer;
         printf("    %2d:  %08x  %3d ", j,sym_tmp->st_value,sym_tmp->st_size);
@@ -274,7 +276,7 @@ void read_relocation(FILE *fp){
     if(section_header[i].sh_type == 0x9){
       int rel_num = section_header[i].sh_size / section_header[i].sh_entsize;
       printf("重定位节 '%s' 位于偏移量 0x%x 含有 %d 个条目:\n", section_header_name[i],section_header[i].sh_offset,rel_num);
-      printf(" Offset     Info    Type            Sym.Value  Sym. Name\n");
+      printf(" Offset     Info    Type                    Sym.Value  Sym. Name\n");
 
       for(j = 0 ; j < rel_num; j++){
         unsigned int rel_tmp[8];
@@ -285,22 +287,19 @@ void read_relocation(FILE *fp){
         char type = ELF32_R_TYPE(rel->r_info);
 
         printf("%08x  %08x  ", rel->r_offset, rel->r_info);
-        if(type == 200) printf("%s  ", str_relocation_type[43]);
-        if(type == 250) printf("%s  ", str_relocation_type[44]);
-        if(type == 251) printf("%s  ", str_relocation_type[45]);
-        else printf("%s  ", str_relocation_type[type]);
+        if(type == 200) printf("%-23s  ", str_relocation_type[43]);
+        if(type == 250) printf("%-23s  ", str_relocation_type[44]);
+        if(type == 251) printf("%-23s  ", str_relocation_type[45]);
+        else printf("%-23s  ", str_relocation_type[type]);
 
         //跳到dynstr_tab读取索引为sym的一项，取出value和name
         char buffer[0x10], name[31];
         fseek(fp,section_header[dynsym_ndx].sh_offset+sym*section_header[dynsym_ndx].sh_entsize,SEEK_SET);
-        printf("%lx ", ftell(fp));
         fread(buffer,section_header[dynsym_ndx].sh_entsize,1,fp);
-        printf("%s  ", buffer);
         Elf32_Sym* sym_tmp = (Elf32_Sym*)buffer;
         fseek(fp,dynstr_offset+sym_tmp->st_name,SEEK_SET);
-        printf("%x %x %lx ",dynstr_offset, sym_tmp->st_name,ftell(fp));
         fread(name,30,1,fp);
-        printf("%8x %s\n", sym_tmp->st_value, name);
+        printf("%08x  %s\n", sym_tmp->st_value, name);
       }
       printf("\n");
     }
@@ -330,6 +329,8 @@ void read_it(FILE* fp){
   press_to_continue();
 
   read_relocation(fp);
+  press_to_continue();
+  
 }
 
 int main(int argc, char const *argv[]) {

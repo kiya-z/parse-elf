@@ -72,8 +72,6 @@ typedef struct elf32_rel {
  Elf32_Word r_info;
 } Elf32_Rel;
 
-
-
 //type:RELA
 // typedef struct elf32_rela{
 //  Elf32_Addr r_offset;
