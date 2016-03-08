@@ -308,15 +308,38 @@ void read_relocation(FILE *fp){
 }
 
 void read_dynamic(FILE* fp){
-  int i = 0;
+  int i = 0,j = 0;
   for(i = 0; i < header.e_shnum; i++){
     if (section_header[i].sh_type == 6) {
       int num = section_header[i].sh_size / section_header[i].sh_entsize;
-      printf("Dynamic section at offset 0x%x contains %d entries:\n", section_header[i].sh_offset,num);
+      printf("Dynamic section at offset 0x%x:\n", section_header[i].sh_offset);
+      printf(" index    标记       类型                     地址/值\n");
+      char buffer[0x8];
+      for(j = 0; j < num; j++){
+        fseek(fp,section_header[i].sh_offset+j*section_header[i].sh_entsize,SEEK_SET);
+        fread(buffer,8,1,fp);
+        Elf32_Dyn* dyn_tmp = (Elf32_Dyn*)buffer;
+        printf("  %02d    %08x    ", j,dyn_tmp->d_tag);
 
-
-
-
+        int type_ndx = 0;
+        int and_res = dyn_tmp->d_tag & 0xfffffff0;
+        if(dyn_tmp->d_tag < 35) type_ndx = dyn_tmp->d_tag;
+        else if(and_res == 0x60000000)  type_ndx = dyn_tmp->d_tag-0x5fffffea;
+        else if(and_res == 0x60000010)  type_ndx = dyn_tmp->d_tag-0x5fffffeb;
+        else if(dyn_tmp->d_tag == 0x6ffff000)  type_ndx = 52;
+        else if(dyn_tmp->d_tag == 0x6ffffd00)  type_ndx = 53;
+        else if(dyn_tmp->d_tag == 0x6ffffe00)  type_ndx = 62;
+        else if(and_res == 0x6ffffdf0)  type_ndx = dyn_tmp->d_tag-0x6ffffdc2;
+        else if(and_res == 0x6ffffef0)  type_ndx = dyn_tmp->d_tag-0x6ffffebb;
+        else if(and_res == 0x6ffffff0)  type_ndx = dyn_tmp->d_tag-0x6fffffab;
+        else if(and_res == 0x70000000)  type_ndx = dyn_tmp->d_tag-0x6fffffb3;
+        else if(and_res == 0x7ffffff0)  type_ndx = dyn_tmp->d_tag-0x7fffffae;
+        printf("ndx: %x  ", type_ndx);
+        printf("%-17s   ", str_dynamic_type[type_ndx][0]);
+        if(str_dynamic_type[type_ndx][1] == 0)  printf("%d ( bytes )\n", dyn_tmp->d_un.d_val);
+        else printf("0x%08x\n", dyn_tmp->d_un.d_ptr);
+        if(dyn_tmp->d_tag == 0) break;
+      }
       break;
     }
   }

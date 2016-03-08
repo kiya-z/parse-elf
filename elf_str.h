@@ -239,13 +239,13 @@ char str_dynamic_type[82][2][17] = {
   { "PREINIT_ARRAY",  1},// 32
   { "PREINIT_ARRAYSZ",  0}, //33
   { "MAXPOSTAGS",  0}, //34
-
+  //35
   { "LOOS",  0},       //0x6000000d
   { "SUNW_FILTER",  1},       //0x6000000e
-
-  { "SUNW_CAP",  1},       //0x60000010
+  //37
+  { "SUNW_CAP",  1},          //0x60000010
   { "SUNW_SYMTAB",  1},       //0x600000011
-  { "SUNW_SYMSZ",  0},       //0x60000012
+  { "SUNW_SYMSZ",  0},          //0x60000012
   { "SUNW_ENCODING",  0},       //0x60000013
   { "SUNW_SYMSORT",  1},       //0x60000014
   { "SUNW_SYMSORTSZ",  0},       //0x60000015
@@ -258,10 +258,10 @@ char str_dynamic_type[82][2][17] = {
   { "",0},
   { "SUNW_CAPCHAINENT",  0},       //0x6000001d
   { "SUNW_CAPCHAINSZ",  0},       //0x6000001f
-
+  //52
   { "HIOS",  0},  //0x6ffff000
   { "VALRNGLO",  0},  //0x6ffffd00
-
+  //54
   { "CHECKSUM",  0},  //0x6ffffdf8
   { "PLTPADSZ",  0},  //0x6ffffdf9
   { "MOVEENT",  0},  //0x6ffffdfa
@@ -270,16 +270,16 @@ char str_dynamic_type[82][2][17] = {
   { "POSFLAG_1",  0},  //0x6ffffdfd
   { "SYMINSZ",  0},  //0x6ffffdfe
   { "VALRNGHI",  0},   //0x6ffffdff
-
+  //62
   { "ADDRRNGLO",  0},  //0x6ffffe00
-
+  //63
   { "CONFIG",  1},//0x6ffffefa
   { "DEPAUDIT",  1},//0x6ffffefb
   { "AUDIT",  1},//0x6ffffefc
   { "PLTPAD",  1},//0x6ffffefd
   { "MOVETAB",  1},//0x6ffffefe
   { "ADDRRNGHI",  0},  //0x6ffffeff
-
+  //69
   { "VERSYM",     0},  //0x6ffffff0
   { "RELACOUNT",  0},  //0x6ffffff9
   { "RELCOUNT",   0},  //0x6ffffffa
@@ -288,7 +288,7 @@ char str_dynamic_type[82][2][17] = {
   { "VERDEFNUM",  0},  //0x6ffffffd
   { "VERNEED",   1},   //0x6ffffffe
   { "VERNEEDNUM",  0}, //0x6fffffff
-
+  //77
   { "LOPROC",  0},//0x70000000
   { "SPARC_REGISTER",  0},//0x70000001
   { "AUXILIARY",  0},//0x7ffffffd
