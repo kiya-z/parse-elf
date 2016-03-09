@@ -465,13 +465,13 @@ int main(int argc, char const *argv[]) {
     printf("[usage] elf-parser elf-file-name\n");
     exit(1);
   }
-  printf("\n>>>>>>>>>>>>>>>>>>  \"%s\"  <<<<<<<<<<<<<<<<<<<<<\n",argv[1]);
   FILE *fp;
   fp = fopen(argv[1], "rb+");
   if (fp == NULL) {
     printf("file doesn't exists!\n");
     exit(1);
   }
+  printf("\n>>>>>>>>>>>>>>>>>>  \"%s\"  <<<<<<<<<<<<<<<<<<<<<\n",argv[1]);
   read_it(fp);
   fclose(fp);
   return 0;
