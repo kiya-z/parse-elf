@@ -204,13 +204,13 @@ char str_relocation_type[46][24] = {
 
 // 0 : val    1 : ptr
 char str_dynamic_type[83][2][17] = {
-  { "NUL",  0},
-  { "NEEDE",  0},
+  { "NULL",  0},
+  { "NEEDED",  0},
   { "PLTRELS",  0},
-  { "PLTGO",  1},
+  { "PLTGOT",  1},
   { "HAS",  1},
-  { "STRTA",  1},
-  { "SYMTA",  1},
+  { "STRTAB",  1},
+  { "SYMTAB",  1},
   { "RELA",  1},
   { "RELAS",  0},
   { "RELAEN",  0},
@@ -280,7 +280,8 @@ char str_dynamic_type[83][2][17] = {
   { "MOVETAB",  1},//0x6ffffefe
   { "ADDRRNGHI",  0},  //0x6ffffeff
   //69
-  { "VERSYM",     0},  //0x6ffffff0
+  { "VERSYM",     1},  //0x6ffffff0
+  //70
   { "RELACOUNT",  0},  //0x6ffffff9
   { "RELCOUNT",   0},  //0x6ffffffa
   { "FLAGS_1",    0},  //0x6ffffffb
