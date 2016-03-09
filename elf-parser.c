@@ -239,7 +239,6 @@ void read_symbol(FILE* fp) {
 
       for(j = 0; j < num; j++){
         fseek(fp,section_header[i].sh_offset+j*section_header[i].sh_entsize,SEEK_SET);
-        if(j == 2)  printf("%lx  ", ftell(fp));
         fread(buffer,section_header[i].sh_entsize,1,fp);
         Elf32_Sym* sym_tmp = (Elf32_Sym*)buffer;
         printf("    %2d:  %08x  %3d ", j,sym_tmp->st_value,sym_tmp->st_size);
@@ -376,6 +375,16 @@ void read_note(FILE* fp){
           break;
         }
 
+        case 5:{
+          unsigned int tmp[2];
+          printf("    Version: gold ");
+          for(j = 0; j < note_tmp->n_descsz; j+=4){
+            fread(tmp,4,1,fp);
+            printf("%d.", tmp[0]);
+          }
+          break;
+        }
+
         case 3:{
           unsigned short tmp[2];
           printf("    Build ID: ");
@@ -385,6 +394,8 @@ void read_note(FILE* fp){
           }
           break;
         }
+
+
       }
       printf("\n\n");
     }
