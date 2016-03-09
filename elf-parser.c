@@ -282,18 +282,16 @@ void read_relocation(FILE *fp){
         fseek(fp,section_header[i].sh_offset+j*section_header[i].sh_entsize,SEEK_SET);
         fread(rel_tmp,8,1,fp);
         Elf32_Rel* rel = (Elf32_Rel*)rel_tmp;
-        char sym = ELF32_R_SYM(rel->r_info);
-        char type = ELF32_R_TYPE(rel->r_info);
+        unsigned int sym = ELF32_R_SYM(rel->r_info);
+        unsigned int type = ELF32_R_TYPE(rel->r_info);
 
         printf("%08x  %08x  ", rel->r_offset, rel->r_info);
-        if(type == 200) printf("%-23s  ", str_relocation_type[43]);
-        if(type == 250) printf("%-23s  ", str_relocation_type[44]);
-        if(type == 251) printf("%-23s  ", str_relocation_type[45]);
-        else printf("%-23s  ", str_relocation_type[type]);
+        printf("%-23s  ", str_relocation_type[type]);
 
-        //跳到dynstr_tab读取索引为sym的一项，取出value和name
+        //跳到dynsym_tab读取索引为sym的一项，取出value和name
         char buffer[0x10], name[31];
         fseek(fp,section_header[dynsym_ndx].sh_offset+sym*section_header[dynsym_ndx].sh_entsize,SEEK_SET);
+        // printf("【%x %d %lx】  ", rel->r_info,sym,ftell(fp));
         fread(buffer,section_header[dynsym_ndx].sh_entsize,1,fp);
         Elf32_Sym* sym_tmp = (Elf32_Sym*)buffer;
         fseek(fp,dynstr_offset+sym_tmp->st_name,SEEK_SET);
@@ -375,13 +373,11 @@ void read_note(FILE* fp){
           break;
         }
 
-        case 5:{
-          unsigned int tmp[2];
-          printf("    Version: gold ");
-          for(j = 0; j < note_tmp->n_descsz; j+=4){
-            fread(tmp,4,1,fp);
-            printf("%d.", tmp[0]);
-          }
+        case 4:{
+          char tmp[30];
+          printf("    Version: ");
+          fread(tmp,note_tmp->n_descsz,1,fp);
+          printf("%s", tmp);
           break;
         }
 
@@ -404,8 +400,8 @@ void read_note(FILE* fp){
 }
 
 void press_to_continue() {
-  char ch = getchar();
-  if(ch != '\n') exit(1);
+  // char ch = getchar();
+  // if(ch != '\n') exit(1);
 }
 
 void read_it(FILE* fp){
@@ -424,13 +420,13 @@ void read_it(FILE* fp){
   read_symbol(fp);
   press_to_continue();
 
-  read_relocation(fp);
+  read_relocation(fp);  //字符串不准
   press_to_continue();
 
-  read_dynamic(fp);
-  press_to_continue();
-
-  read_note(fp);
+  // read_dynamic(fp);   //添加NEEDED项读取字符串
+  // press_to_continue();
+  //
+  // read_note(fp);
 }
 
 int main(int argc, char const *argv[]) {
