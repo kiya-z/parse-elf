@@ -393,8 +393,8 @@ void read_note(FILE* fp){
 }
 
 void press_to_continue() {
-  // char ch = getchar();
-  // if(ch != '\n') exit(1);
+  char ch = getchar();
+  if(ch != '\n') exit(1);
 }
 
 void read_it(FILE* fp){
@@ -407,17 +407,17 @@ void read_it(FILE* fp){
   read_segment_header(fp);
   press_to_continue();
 
-  // get_section_segment_mapping();
-  // press_to_continue();
-  //
-  // read_symbol(fp);
-  // press_to_continue();
-  //
-  // read_relocation(fp);
-  // press_to_continue();
-  //
-  // read_dynamic(fp);
-  // press_to_continue();
+  get_section_segment_mapping();
+  press_to_continue();
+
+  read_symbol(fp);
+  press_to_continue();
+
+  read_relocation(fp);
+  press_to_continue();
+
+  read_dynamic(fp);
+  press_to_continue();
 
   read_note(fp);
 }
