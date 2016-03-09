@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<fcntl.h>
 #include<stdlib.h>
+#include<math.h>
+#include<string.h>
 
 #include"elf.h"
 #include"elf_str.h"
@@ -241,7 +243,7 @@ void read_symbol(FILE* fp) {
         fseek(fp,section_header[i].sh_offset+j*section_header[i].sh_entsize,SEEK_SET);
         fread(buffer,section_header[i].sh_entsize,1,fp);
         Elf32_Sym* sym_tmp = (Elf32_Sym*)buffer;
-        printf("    %2d:  %08x  %3d ", j,sym_tmp->st_value,sym_tmp->st_size);
+        printf("  %4d:  %08x  %4d ", j,sym_tmp->st_value,sym_tmp->st_size);
 
         char bind = ELF32_ST_BIND(sym_tmp->st_info);
         char type = ELF32_ST_TYPE(sym_tmp->st_info);
@@ -336,8 +338,37 @@ void read_dynamic(FILE* fp){
         // printf("%d  ", type_ndx);
         printf("%-17s   ", str_dynamic_type[type_ndx][0]);
         // printf("t -> %d  ", str_dynamic_type[type_ndx][1][0]);
-        if(str_dynamic_type[type_ndx][1][0] == 0)  printf("%d (bytes)\n", dyn_tmp->d_un.d_val);
-        else printf("0x%08x\n", dyn_tmp->d_un.d_ptr);
+        if(type_ndx == 1 || type_ndx == 0xe){
+          type_ndx == 1 ? printf("共享库：") : (type_ndx == 0xf ? printf("prath: ") : printf("Library soname: "));
+          fseek(fp,dynstr_offset+dyn_tmp->d_un.d_ptr,SEEK_SET);
+          char so_name[30];
+          fread(so_name,30,1,fp);
+          printf("[%s]\n", so_name);
+        } else if(type_ndx == 20){
+          printf("%s\n", str_dynamic_type[dyn_tmp->d_un.d_val][0]);
+        }else if(type_ndx == 30){
+          int k = 0, mul = 1;
+          for(k = 0; k < 5; k++){
+            if(mul == dyn_tmp->d_un.d_val){
+              printf("%s\n", str_dynamic_type_flags[k]);
+              break;
+            }
+            mul *= 2;
+          }
+          if(k == 5)  printf("%d \n", dyn_tmp->d_un.d_val);
+        }else if(type_ndx == 72){
+          int k = 0, mul = 1;
+          for(k = 0; k < 15; k++){
+            if(mul == dyn_tmp->d_un.d_val){
+              printf("%s\n", str_dynamic_type_flags_1[k]);
+              break;
+            }
+            mul *= 2;
+          }
+        }else {
+          if(str_dynamic_type[type_ndx][1][0] == 0)  printf("%d (bytes)\n", dyn_tmp->d_un.d_val);
+          else printf("0x%-8x\n", dyn_tmp->d_un.d_ptr);
+        }
         if(dyn_tmp->d_tag == 0) break;
       }
       break;
@@ -374,10 +405,10 @@ void read_note(FILE* fp){
         }
 
         case 4:{
-          char tmp[30];
           printf("    Version: ");
-          fread(tmp,note_tmp->n_descsz,1,fp);
-          printf("%s", tmp);
+          memset(note_name,'\0',sizeof(note_name));
+          fread(note_name,note_tmp->n_descsz,1,fp);
+          printf("%s", note_name);
           break;
         }
 
@@ -400,8 +431,8 @@ void read_note(FILE* fp){
 }
 
 void press_to_continue() {
-  // char ch = getchar();
-  // if(ch != '\n') exit(1);
+  char ch = getchar();
+  if(ch != '\n') exit(1);
 }
 
 void read_it(FILE* fp){
@@ -420,13 +451,13 @@ void read_it(FILE* fp){
   read_symbol(fp);
   press_to_continue();
 
-  read_relocation(fp);  //字符串不准
+  read_relocation(fp);
   press_to_continue();
 
-  // read_dynamic(fp);   //添加NEEDED项读取字符串
-  // press_to_continue();
-  //
-  // read_note(fp);
+  read_dynamic(fp);
+  press_to_continue();
+
+  read_note(fp);
 }
 
 int main(int argc, char const *argv[]) {

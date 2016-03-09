@@ -285,7 +285,7 @@ char str_relocation_type[131][25] = {
 
 // 0 : val    1 : ptr
 char str_dynamic_type[83][2][17] = {
-  { "NULL",  0},
+  { "NULL",  1},
   { "NEEDED",  0},
   { "PLTRELS",  0},
   { "PLTGOT",  1},
@@ -380,6 +380,30 @@ char str_dynamic_type[83][2][17] = {
   { "GNU_HASH", 1}
 };
 
+char str_dynamic_type_flags[5][11] = {
+  "ORIGIN",//0x1
+  "SYMBOLIC",//0x2
+  "TEXTREL",//0x4
+  "BIND_NOW",//0x8
+  "STATIC_TLS"//0x10
+};
+
+char str_dynamic_type_flags_1[14][10] = {
+  "NOW", //0x1,
+  "GLOBAL", //0x2,
+  "GROUP", //0x4,
+  "NODELETE", //0x8,
+  "LOADFLTR", //0x10,
+  "INITFIRST", //0x20,
+  "NOOPEN", //0x40,
+  "ORIGIN", //0x80,
+  "DIRECT", //0x100,
+  "TRANS", //0x200,
+  "INTERPOSE", //0x400,
+  "NODEFLIB", //0x800,
+  "NODUMP", //0x1000,
+  "CONLFAT" //0x2000
+};
 
 char str_note_type[5][17] = {
   "",
