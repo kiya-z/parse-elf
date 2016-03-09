@@ -298,3 +298,21 @@ char str_dynamic_type[83][2][17] = {
 
   { "GNU_HASH", 1}
 };
+
+
+char str_note_type[5][17] = {
+  "",
+  "GNU_ABI_TAG",
+  "GNU_HWCAP",
+  "GNU_BUILD_ID",
+  "GNU_GOLD_VERSION",
+};
+
+char str_note_type_os[6][13] = {
+  "OS: LINUX",
+  "OS: GNU",
+  "OS: SOLARIS2",
+  "OS: FREEBSD",
+  "OS: NETBSD",
+  "OS: SYLLABL"
+};

@@ -346,6 +346,50 @@ void read_dynamic(FILE* fp){
       break;
     }
   }
+  printf("\n******************************************************************\n\n");
+}
+
+void read_note(FILE* fp){
+  int i = 0,j = 0;
+  for(i = 0; i < header.e_shnum; i++){
+    if (section_header[i].sh_type == 7) {
+      printf("Displaying notes(%s) found at file offset 0x%08x with length 0x%08x:\n",section_header_name[i],section_header[i].sh_offset,section_header[i].sh_size );
+      printf("  Owner                       Data size	     Description\n");
+      char buffer[12];
+      fseek(fp,section_header[i].sh_offset+j*section_header[i].sh_entsize,SEEK_SET);
+      fread(buffer,12,1,fp);
+      Elf32_Nhdr* note_tmp = (Elf32_Nhdr*)buffer;
+
+      char note_name[20];
+      fread(note_name,note_tmp->n_namesz,1,fp);
+      printf("  %-20s        0x%08x     %-16s\n", note_name,note_tmp->n_descsz,str_note_type[note_tmp->n_type]);
+
+      switch (note_tmp->n_type) {
+        case 1:{
+          unsigned int tmp[2];
+          fread(tmp,4,1,fp);
+          printf("    %s, ABI: ", str_note_type_os[tmp[0]]);
+          for(j = 4; j < note_tmp->n_descsz; j+=4){
+            fread(tmp,4,1,fp);
+            printf("%d.", tmp[0]);
+          }
+          break;
+        }
+
+        case 3:{
+          unsigned short tmp[2];
+          printf("    Build ID: ");
+          for(j = 0; j < note_tmp->n_descsz; j+=2){
+            fread(tmp,2,1,fp);
+            printf("%x", tmp[0]);
+          }
+          break;
+        }
+      }
+      printf("\n\n");
+    }
+  }
+  printf("\n******************************************************************\n\n");
 }
 
 void press_to_continue() {
@@ -363,17 +407,19 @@ void read_it(FILE* fp){
   read_segment_header(fp);
   press_to_continue();
 
-  get_section_segment_mapping();
-  press_to_continue();
+  // get_section_segment_mapping();
+  // press_to_continue();
+  //
+  // read_symbol(fp);
+  // press_to_continue();
+  //
+  // read_relocation(fp);
+  // press_to_continue();
+  //
+  // read_dynamic(fp);
+  // press_to_continue();
 
-  read_symbol(fp);
-  press_to_continue();
-
-  read_relocation(fp);
-  press_to_continue();
-
-  read_dynamic(fp);
-
+  read_note(fp);
 }
 
 int main(int argc, char const *argv[]) {
